@@ -16,8 +16,8 @@
         detached: false
         services:
           - generator
-      args:
-        chdir: ../stack/single-node
+        project_src:
+          - ../stack/single_node
 
 
     - name: Deploy Wazuh stack
