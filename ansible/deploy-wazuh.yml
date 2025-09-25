@@ -13,11 +13,9 @@
           - generate-indexer-certs.yml
         state: present
         recreate: always
-        detached: false
         services:
           - generator
-        project_src:
-          - ../stack/single_node
+        project_src: ../stack/single-node
 
 
     - name: Deploy Wazuh stack
@@ -25,6 +23,4 @@
         state: present
         name: wazuh-stack
         compose:
-          - docker-compose.yml
-      args:
-        chdir: ../stack/single-node
+          - ../stack/single-node/docker-compose.yml
