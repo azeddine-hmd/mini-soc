@@ -9,7 +9,7 @@
         state: present
 
     - name: Run indexer certificate generator
-      community.docker.docker_compose:
+      community.docker.docker_compose_v2:
         files:
           - generate-indexer-certs.yml
         state: present
