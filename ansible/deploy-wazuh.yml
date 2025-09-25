@@ -1,45 +1,3 @@
----
-################################
-# generating ssh key for nodes #
-################################
-- name: Generate and distribute SSH keys for Vagrant nodes
-  hosts: localhost
-  gather_facts: false
-  vars:
-    ssh_key_dir: "./ssh_keys"   # keep keys in current project folder
-    ssh_key_name: "vagrant_swarm"
-
-  tasks:
-    - name: Ensure ssh_keys directory exists
-      ansible.builtin.file:
-        path: "{{ ssh_key_dir }}"
-        state: directory
-        mode: "0700"
-
-    - name: Generate SSH keypair in project directory
-      community.crypto.openssh_keypair:
-        path: "{{ ssh_key_dir }}/{{ ssh_key_name }}"
-        type: rsa
-        size: 4096
-        mode: "0600"
-      register: ssh_key_result
-
-    - name: Show where key is stored
-      debug:
-        msg: "SSH private key: {{ ssh_key_result.filename }}"
-
-    - name: Distribute public key to Vagrant nodes
-      ansible.builtin.authorized_key:
-        user: vagrant
-        state: present
-        key: "{{ lookup('file', ssh_key_dir + '/' + ssh_key_name + '.pub') }}"
-      delegate_to: "{{ item }}"
-      loop:
-        - vagrant-node1
-        - vagrant-node2
-        - vagrant-node3
-
-
 ##############################
 # installing docker on nodes #
 ##############################
@@ -90,6 +48,7 @@
         value: 262144
         state: present
         reload: yes
+
 
 #############################
 # working with docker swarm #

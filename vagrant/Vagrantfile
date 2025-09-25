@@ -1,36 +1,37 @@
 Vagrant.configure("2") do |config|
   BOX_NAME = "generic/ubuntu2204"
+  SSH_KEY_PATH = File.expand_path("./ssh_keys/vagrant_swarm")
 
-  # Manager node
-  config.vm.define "manager" do |m|
-    m.vm.box = BOX_NAME
-    m.vm.hostname = "manager"
-    m.vm.network "private_network", ip: "192.168.56.10"
-    m.vm.provider "virtualbox" do |vb|
-      vb.memory = 1024
-      vb.cpus = 1
-    end
-  end
+  [ 
+    { name: "manager", ip: "192.168.56.10", mem: 1024 },
+    { name: "worker1", ip: "192.168.56.11", mem: 512 },
+    { name: "worker2", ip: "192.168.56.12", mem: 512 }
+  ].each do |node|
+    config.vm.define node[:name] do |vm|
+      vm.vm.box = BOX_NAME
+      vm.vm.hostname = node[:name]
+      vm.vm.network "private_network", ip: node[:ip]
 
-  # Worker 1
-  config.vm.define "worker1" do |w|
-    w.vm.box = BOX_NAME
-    w.vm.hostname = "worker1"
-    w.vm.network "private_network", ip: "192.168.56.11"
-    w.vm.provider "virtualbox" do |vb|
-      vb.memory = 512
-      vb.cpus = 1
-    end
-  end
+      vm.vm.provider "virtualbox" do |vb|
+        vb.memory = node[:mem]
+        vb.cpus = 1
+      end
 
-  # Worker 2
-  config.vm.define "worker2" do |w|
-    w.vm.box = BOX_NAME
-    w.vm.hostname = "worker2"
-    w.vm.network "private_network", ip: "192.168.56.12"
-    w.vm.provider "virtualbox" do |vb|
-      vb.memory = 512
-      vb.cpus = 1
+      # Tell Vagrant to connect with your key
+      vm.ssh.insert_key = false
+      vm.ssh.private_key_path = [SSH_KEY_PATH]
+
+      # Provision: copy your public key into VM's authorized_keys
+      vm.vm.provision "file", 
+        source: "#{SSH_KEY_PATH}.pub", 
+        destination: "/home/vagrant/vagrant_swarm.pub"
+
+      vm.vm.provision "shell", inline: <<-SHELL
+        mkdir -p /home/vagrant/.ssh
+        cat /home/vagrant/vagrant_swarm.pub >> /home/vagrant/.ssh/authorized_keys
+        chown -R vagrant:vagrant /home/vagrant/.ssh
+        chmod 600 /home/vagrant/.ssh/authorized_keys
+      SHELL
     end
   end
 end
