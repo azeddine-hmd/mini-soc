@@ -1,0 +1,31 @@
+---
+- name: Deploy Wazuh Stack on Docker Swarm
+  hosts: wazuh_nodes
+  become: yes
+  tasks:
+
+    - name: Ensure Docker Swarm is initialized
+      community.docker.docker_swarm:
+        state: present
+
+    - name: Run indexer certificate generator
+      community.docker.docker_compose:
+        files:
+          - generate-indexer-certs.yml
+        state: present
+        recreate: yes
+        detached: false
+        services:
+          - generator
+      args:
+        chdir: ../stack/single-node
+
+
+    - name: Deploy Wazuh stack
+      community.docker.docker_stack:
+        state: present
+        name: wazuh-stack
+        compose:
+          - docker-compose.yml
+      args:
+        chdir: ../stack/single-node
