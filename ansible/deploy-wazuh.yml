@@ -1,7 +1,6 @@
 ---
 - name: Deploy Wazuh Stack on Docker Swarm
   hosts: wazuh_nodes
-  become: yes
   tasks:
 
     - name: Ensure Docker Swarm is initialized
