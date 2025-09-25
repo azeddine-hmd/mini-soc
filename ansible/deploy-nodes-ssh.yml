@@ -24,13 +24,3 @@
     - name: Show where key is stored
       debug:
         msg: "SSH private key: {{ ssh_key_result.filename }}"
-
-    - name: Distribute public key to Vagrant nodes
-      hosts: swarm_nodes
-      gather_facts: false
-      tasks:
-      - name: Copy public key to vagrant user
-      ansible.builtin.authorized_key:
-      user: vagrant
-      state: present
-      key: "{{ lookup('file', ssh_key_dir + '/' + ssh_key_name + '.pub') }}"
