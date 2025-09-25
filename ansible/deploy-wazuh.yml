@@ -12,7 +12,7 @@
         files:
           - generate-indexer-certs.yml
         state: present
-        recreate: yes
+        recreate: always
         detached: false
         services:
           - generator
