@@ -1,100 +1,26 @@
-##############################
-# installing docker on nodes #
-##############################
-#- name: Install Docker on all nodes
-#  hosts: swarm_nodes
-#  tasks:
-#    - name: Install required packages
-#      ansible.builtin.apt:
-#        name: "{{ item }}"
-#        state: present
-#        update_cache: yes
-#      loop:
-#        - apt-transport-https
-#        - ca-certificates
-#        - curl
-#        - software-properties-common
-#        - gnupg
-#
-#    - name: Add Docker GPG key
-#      ansible.builtin.shell: |
-#        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-#      args:
-#        creates: /usr/share/keyrings/docker-archive-keyring.gpg
-#
-#    - name: Add Docker repository
-#      ansible.builtin.apt_repository:
-#        repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu focal stable"
-#        state: present
-#
-#    - name: Install Docker
-#      ansible.builtin.apt:
-#        name:
-#          - docker-ce
-#          - docker-ce-cli
-#          - containerd.io
-#        state: present
-#        update_cache: yes
-#
-#    - name: Add vagrant user to docker group
-#      ansible.builtin.user:
-#        name: vagrant
-#        groups: docker
-#        append: yes
-#
-#    - name: Ensure vm.max_map_count is set
-#      ansible.builtin.sysctl:
-#        name: vm.max_map_count
-#        value: 262144
-#        state: present
-#        reload: yes
+---
+- name: Deploy Wazuh Stack on Docker Swarm
+  hosts: wazuh_nodes
+  tasks:
+
+    - name: Ensure Docker Swarm is initialized
+      community.docker.docker_swarm:
+        state: present
+
+    - name: Run indexer certificate generator
+      community.docker.docker_compose_v2:
+        files:
+          - generate-indexer-certs.yml
+        state: present
+        recreate: always
+        services:
+          - generator
+        project_src: ../stack/multi-node
 
 
-#############################
-# working with docker swarm #
-#############################
-# - name: Initialize Swarm on manager
-#   hosts: swarm_managers
-#   become: yes
-#   vars:
-#     manager_ip: 192.168.56.10
-#   tasks:
-#     - name: Initialize Docker Swarm
-#       community.docker.docker_swarm:
-#         state: present
-#         advertise_addr: "{{ manager_ip }}"
-#
-#     - name: Get worker join token
-#       community.docker.docker_swarm_info:
-#       register: swarm_info
-#
-#     - name: Set worker token fact
-#       ansible.builtin.set_fact:
-#         worker_token: "{{ swarm_info.swarm.JoinTokens.Worker }}"
-#
-#     - name: Join worker nodes
-#       hosts: swarm_workers
-#       become: yes
-#       vars:
-#         manager_ip: 192.168.56.10
-#       tasks:
-#         - name: Join Swarm as worker
-#           community.docker.docker_swarm:
-#             state: join
-#             remote_addrs:
-#               - "{{ manager_ip }}"
-#             join_token: "{{ hostvars['manager']['worker_token'] }}"
-#
-#     - name: Deploy Wazuh Stack
-#       hosts: swarm_managers
-#       become: yes
-#       tasks:
-#         - name: Deploy Wazuh stack
-#           community.docker.docker_stack:
-#             state: present
-#             name: wazuh-stack
-#             compose:
-#               - ../stack/docker-compose-single-node.yml
-#             detach: yes
-#           args:
-#             chdir: ../stack/single-node
+    - name: Deploy Wazuh stack
+      community.docker.docker_stack:
+        state: present
+        name: wazuh-stack
+        compose:
+          - ../stack/multi-node/docker-compose.yml
