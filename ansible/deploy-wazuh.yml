@@ -11,11 +11,10 @@
       community.docker.docker_compose_v2:
         files:
           - generate-indexer-certs.yml
-        state: present
-        recreate: always
+        state: absent
         services:
           - generator
-        project_src: ../stack/multi-node
+        project_src: ../stack/
 
 
     - name: Deploy Wazuh stack
@@ -23,4 +22,4 @@
         state: present
         name: wazuh-stack
         compose:
-          - ../stack/multi-node/docker-compose.yml
+          - ../stack/docker-compose.yml
