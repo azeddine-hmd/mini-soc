@@ -1,26 +1,29 @@
 ---
-- name: Generate and distribute SSH keys for Vagrant nodes
+- name: Use existing SSH key from home
   hosts: localhost
   gather_facts: false
   vars:
-    ssh_key_dir: "./ssh_keys"   # keep keys in current project folder
-    ssh_key_name: "vagrant_swarm"
+    home_ssh_dir: "{{ lookup('env','HOME') }}/.ssh"
+    ssh_key_name: "id_rsa"   # change if your key has a different name
+    ssh_key_path: "{{ home_ssh_dir }}/{{ ssh_key_name }}"
 
   tasks:
-    - name: Ensure ssh_keys directory exists
+    - name: Ensure ~/.ssh exists
       ansible.builtin.file:
-        path: "{{ ssh_key_dir }}"
+        path: "{{ home_ssh_dir }}"
         state: directory
         mode: "0700"
 
-    - name: Generate SSH keypair in project directory
-      community.crypto.openssh_keypair:
-        path: "{{ ssh_key_dir }}/{{ ssh_key_name }}"
-        type: rsa
-        size: 4096
-        mode: "0600"
-      register: ssh_key_result
+    - name: Check if SSH key exists
+      ansible.builtin.stat:
+        path: "{{ ssh_key_path }}"
+      register: ssh_key_stat
 
-    - name: Show where key is stored
+    - name: Fail if SSH key does not exist
+      ansible.builtin.fail:
+        msg: "SSH key {{ ssh_key_path }} not found!"
+      when: not ssh_key_stat.stat.exists
+
+    - name: Debug - show SSH key path
       debug:
-        msg: "SSH private key: {{ ssh_key_result.filename }}"
+        msg: "Using existing SSH key at {{ ssh_key_path }}"
