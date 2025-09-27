@@ -15,7 +15,7 @@
         recreate: always
         services:
           - generator
-        project_src: ../stack/single-node
+        project_src: ../stack/multi-node
 
 
     - name: Deploy Wazuh stack
@@ -23,4 +23,4 @@
         state: present
         name: wazuh-stack
         compose:
-          - ../stack/single-node/docker-compose.yml
+          - ../stack/multi-node/docker-compose.yml
