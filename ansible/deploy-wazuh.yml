@@ -3,18 +3,32 @@
   hosts: wazuh_nodes
   tasks:
 
+    - name: Gather local UID/GID
+      ansible.builtin.set_fact:
+        my_uid: "{{ lookup('pipe', 'id -u') }}"
+        my_gid: "{{ lookup('pipe', 'id -g') }}"
+
+
     - name: Ensure Docker Swarm is initialized
       community.docker.docker_swarm:
         state: present
+
+    - name: Create .env for Compose
+      copy:
+        dest: ../stack/.env
+        content: |
+          MY_UID={{ my_uid }}
+          MY_GID={{ my_gid }}
 
     - name: Run indexer certificate generator
       community.docker.docker_compose_v2:
         files:
           - generate-indexer-certs.yml
-        state: absent
+        state: present
         services:
           - generator
         project_src: ../stack/
+        
 
 
     - name: Deploy Wazuh stack
