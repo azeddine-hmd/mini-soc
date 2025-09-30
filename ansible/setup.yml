@@ -1,17 +1,11 @@
 ---
-- name: Deploy Wazuh Stack on Docker Swarm
-  hosts: wazuh_nodes
+- name: genreate ssl for signing wazuh stack services
+  hosts: main_node
   tasks:
-
     - name: Gather local UID/GID
       ansible.builtin.set_fact:
         my_uid: "{{ lookup('pipe', 'id -u') }}"
         my_gid: "{{ lookup('pipe', 'id -g') }}"
-
-
-    - name: Ensure Docker Swarm is initialized
-      community.docker.docker_swarm:
-        state: present
 
     - name: Create .env for Compose
       copy:
@@ -28,12 +22,3 @@
         services:
           - generator
         project_src: ../stack/
-        
-
-
-    - name: Deploy Wazuh stack
-      community.docker.docker_stack:
-        state: present
-        name: wazuh-stack
-        compose:
-          - ../stack/docker-compose.yml

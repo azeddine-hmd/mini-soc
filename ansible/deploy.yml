@@ -1,0 +1,16 @@
+---
+- name: Deploy Wazuh Stack on Docker Swarm
+  hosts: main_node
+  tasks:
+    - name: Ensure Docker Swarm is initialized
+      community.docker.docker_swarm:
+        state: present
+        advertise_addr: 192.168.2.123:2377
+        listen_addr: 0.0.0.0:2377
+
+    - name: Deploy Wazuh stack
+      community.docker.docker_stack:
+        state: present
+        name: wazuh-stack
+        compose:
+          - ../stack/docker-compose.yml
