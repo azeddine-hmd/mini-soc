@@ -8,6 +8,13 @@
         # advertise_addr: 192.168.2.123:2377
         # listen_addr: 0.0.0.0:2377
 
+    - name: Ensure wazuh-net overlay network exists
+      community.docker.docker_network:
+        name: wazuh-net
+        driver: overlay
+        scope: swarm
+        state: present
+
     - name: Deploy Wazuh stack
       community.docker.docker_stack:
         state: present
