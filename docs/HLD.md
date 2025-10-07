@@ -1,7 +1,5 @@
 # High-Level Design (HLD) – Mini SOC Platform
 
-**Location:** `/docs/HLD.md`
-
 ## Overview
 This document describes the high-level design for the Mini SOC (Security Operations Center) platform using Wazuh SIEM, container orchestration, and DevOps practices. The design emphasizes automation, security, and reproducibility.
 
