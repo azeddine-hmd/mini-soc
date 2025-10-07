@@ -18,15 +18,15 @@ jobs:
           chmod +x ./test.sh
           ./test.sh
 
-  deploy:
-    needs: build-and-test
-    if: github.ref == 'refs/heads/main'
-    runs-on: self-hosted
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: executing run.sh script for deployement
-        run: |
-          chmod +x ./run.sh
-          ./run.sh
+  # deploy:
+  #   needs: build-and-test
+  #   if: github.ref == 'refs/heads/main'
+  #   runs-on: self-hosted
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: executing run.sh script for deployement
+  #       run: |
+  #         chmod +x ./run.sh
+  #         ./run.sh
