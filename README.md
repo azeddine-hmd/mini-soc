@@ -15,6 +15,7 @@ It includes:
 
 # Requirements
 * ansible
+* selenium
 
 # Run Swarm Cluster
 `run.sh`
