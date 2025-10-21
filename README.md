@@ -1,4 +1,4 @@
-# Mini SOC Platform – Wazuh + Docker Swarm + CI/CD
+# Mini SOC Platform – Wazuh
 
 A **Mini Security Operations Center (SOC)** platform that leverages **Wazuh SIEM**, **Docker Swarm orchestration**, and **DevOps automation** through **GitHub Actions** and **Ansible**.  
 This project is built for the **SOC Architect / DevOps Technical Challenge**, focusing on automation, security, and observability.
